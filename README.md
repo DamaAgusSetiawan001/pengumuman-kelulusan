@@ -1,1 +1,117 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pengumuman Kelulusan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+    }
+    #countdown {
+      font-size: 1.5em;
+      color: #d9534f;
+      margin: 20px 0;
+    }
+    ol {
+      text-align: left;
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📢 Pengumuman Kelulusan</h1>
+    <div id="loading">⏳ Memuat waktu server...</div>
+    <div id="before" style="display: none;">
+      <p>Halaman akan terbuka pada:</p>
+      <p><strong>1 Juni 2025, pukul 14.30 WIB</strong></p>
+      <div id="countdown">⏳ Memuat countdown...</div>
+    </div>
+    <div id="after" style="display: none;">
+      <p>Berikut adalah daftar siswa yang dinyatakan <strong>LULUS</strong>:</p>
+      <ol>
+        <li>Ahmad Fauzi</li>
+        <li>Bella Rahma</li>
+        <li>Citra Anggraeni</li>
+        <li>Dimas Wicaksono</li>
+        <li>Eka Putri</li>
+      </ol>
+      <p>🎉 Selamat kepada seluruh siswa yang telah lulus!</p>
+    </div>
+  </div>
 
+  <script>
+    const unlockTime = new Date("2025-06-01T13:00:00+07:00").getTime();
+    const countdownEl = document.getElementById("countdown");
+    const loadingEl = document.getElementById("loading");
+    const beforeEl = document.getElementById("before");
+    const afterEl = document.getElementById("after");
+
+    async function fetchServerTime() {
+      try {
+        const res = await fetch("https://worldtimeapi.org/api/timezone/Asia/Jakarta");
+        const data = await res.json();
+        const serverTime = new Date(data.datetime).getTime();
+
+        if (serverTime >= unlockTime) {
+          showContent();
+        } else {
+          showCountdown(serverTime);
+        }
+      } catch (error) {
+        loadingEl.innerHTML = "❌ Gagal mengambil waktu server. Silakan coba lagi nanti.";
+      }
+    }
+
+    function showContent() {
+      loadingEl.style.display = "none";
+      beforeEl.style.display = "none";
+      afterEl.style.display = "block";
+    }
+
+    function showCountdown(currentTime) {
+      loadingEl.style.display = "none";
+      beforeEl.style.display = "block";
+      updateCountdown(currentTime);
+      setInterval(() => {
+        currentTime += 1000;
+        updateCountdown(currentTime);
+      }, 1000);
+    }
+
+    function updateCountdown(currentTime) {
+      const diff = unlockTime - currentTime;
+
+      if (diff <= 0) {
+        showContent();
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdownEl.innerHTML = `${days} hari, ${hours} jam, ${minutes} menit, ${seconds} detik`;
+    }
+
+    fetchServerTime();
+  </script>
+</body>
+</html>
